@@ -10,19 +10,50 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_07_205149) do
+ActiveRecord::Schema.define(version: 2020_02_07_230133) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "matches", force: :cascade do |t|
+    t.integer "match_weight"
+    t.boolean "win?"
+    t.string "match_type"
   end
 
   create_table "organizations", force: :cascade do |t|
+    t.string "name"
+    t.string "icon_url"
+  end
+
+  create_table "user_matches", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "match_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["match_id"], name: "index_user_matches_on_match_id"
+    t.index ["user_id"], name: "index_user_matches_on_user_id"
+  end
+
+  create_table "user_orgs", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "organization_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["organization_id"], name: "index_user_orgs_on_organization_id"
+    t.index ["user_id"], name: "index_user_orgs_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
-    t.string "name"
+    t.string "username"
+    t.string "password"
+    t.string "profile_icon"
+    t.string "email_address"
+    t.string "phone_number"
   end
 
+  add_foreign_key "user_matches", "matches"
+  add_foreign_key "user_matches", "users"
+  add_foreign_key "user_orgs", "organizations"
+  add_foreign_key "user_orgs", "users"
 end
