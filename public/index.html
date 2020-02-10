@@ -4,11 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="styles.css">
     <title>Org Ping Pong</title>
 </head>
-<body>
-    <h1> hello world</h1>
+<body class='container'>
+    <div class="row">
+        <div class="col-3">
+          <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+            <a class="nav-link active" id="home-tab" data-toggle="pill" href="#home" role="tab" aria-controls="v-pills-home" aria-selected="true">Home</a>
+            <a class="nav-link" id="profile-tab" data-toggle="pill" href="#profile" role="tab" aria-controls="v-pills-profile" aria-selected="false">Profile</a>
+            <a class="nav-link" id="organizations-tab" data-toggle="pill" href="#organizations" role="tab" aria-controls="v-pills-organizations" aria-selected="false">Messages</a>
+            <a class="nav-link" id="stats-tab" data-toggle="pill" href="#stats" role="tab" aria-controls="v-pills-stats" aria-selected="false">Settings</a>
+          </div>
+        </div>
+        <div class="col-9">
+          <div class="tab-content" id="v-pills-tabContent">
+            <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="v-pills-home-tab">
+                <iframe src='' width="480" height="480" frameBorder="0" class="giphy-embed" id='homeGif' allowFullScreen></iframe>            
+                <p>
+                    Welcome to the ping-pong app! This app makes it easy for you to coordinate matches and keep track of stats within your organization, workplace, or other group of ping-pong lovers!
+                </p>
+            </div>
+            <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">...b</div>
+            <div class="tab-pane fade" id="organizations" role="tabpanel" aria-labelledby="v-pills-organizations-tab">.c..</div>
+            <div class="tab-pane fade" id="stats" role="tabpanel" aria-labelledby="v-pills-stats-tab">.d..</div>
+          </div>
+        </div>
+      </div>
+      
+
     <script src="index.js"></script>
 </body>
 </html>
