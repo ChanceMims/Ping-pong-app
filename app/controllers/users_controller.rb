@@ -2,7 +2,7 @@ class UsersController < ApplicationController
 
     def index
         users = User.all
-        render json: users
+        render json: users, except: :id
     end
 
     def show
@@ -11,13 +11,24 @@ class UsersController < ApplicationController
     end
 
     def create
-        user = User.new(user_params(params))
+        user = User.new(user_params)
         if user.valid?
             user.save
-            render json: user
-        # else
-        #     render JSON: error
-        end     
+            render json: user, except: :id
+        else
+            render json: {errors: errors.full_messages}
+        end
+           
+    end
+
+    def login
+        user = User.find_by(username: params[:username], password: params[:password])
+        if !!user
+            render json: user, except: :id
+        else
+            render json: {errors: errors.full_messages}
+        end
+
     end
 
     def update

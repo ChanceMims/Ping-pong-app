@@ -3,6 +3,7 @@ Rails.application.routes.draw do
   root to: 'home#index'
 
   resources :users
+  post 'users/login', to: 'users#login'
   resources :organizations
   resources :matches, only: [:show, :index, :create, :new]
 
