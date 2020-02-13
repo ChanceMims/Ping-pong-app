@@ -13,6 +13,9 @@ class MatchesController < ApplicationController
     def create
         match = Match.new(match_params)
         if match.valid?
+            params[:user_ids].each do |user_id|
+                match.users << User.find(user_id)
+            end
             match.save
             render json: match, include: :users
         end
@@ -21,7 +24,7 @@ class MatchesController < ApplicationController
     private
 
     def match_params
-        params.require(:match).permit(:win?, :match_type, :match_weight)
+        params.require(:match).permit(:win?, :match_type, :status, :organization_id)
     end
 
 end

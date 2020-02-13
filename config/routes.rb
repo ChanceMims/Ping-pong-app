@@ -4,6 +4,8 @@ Rails.application.routes.draw do
 
   resources :users
   post 'users/login', to: 'users#login'
+  post 'organizations/:id/add_user', to: 'organizations#add_user'
+  # patch 'organizations/update', to: 'organizations#update'
   resources :organizations
   resources :matches, only: [:show, :index, :create, :new]
 

@@ -14,7 +14,7 @@ class UsersController < ApplicationController
         user = User.new(user_params)
         if user.valid?
             user.save
-            render json: user, except: :id
+            render json: user
         else
             render json: {errors: errors.full_messages}
         end
@@ -24,7 +24,7 @@ class UsersController < ApplicationController
     def login
         user = User.find_by(username: params[:username], password: params[:password])
         if !!user
-            render json: user, except: :id
+            render json: user, include: [:matches, :organizations]
         else
             render json: {errors: errors.full_messages}
         end
