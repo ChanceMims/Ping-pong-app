@@ -7,6 +7,6 @@ Rails.application.routes.draw do
   post 'organizations/:id/add_user', to: 'organizations#add_user'
   # patch 'organizations/update', to: 'organizations#update'
   resources :organizations
-  resources :matches, only: [:show, :index, :create, :new]
+  resources :matches, only: [:show, :index, :create, :new, :update]
 
 end

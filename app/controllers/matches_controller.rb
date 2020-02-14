@@ -13,10 +13,16 @@ class MatchesController < ApplicationController
     def create
         match = Match.new(match_params)
         if match.valid?
-            params[:user_ids].each do |user_id|
-                match.users << User.find(user_id)
-            end
+            match.users << User.find(match.challenger)
+            match.users << User.find(match.recipient)
             match.save
+            render json: match, include: :users
+        end
+    end
+
+    def update
+        match = Match.find(params[:id])
+        if match.update(match_params)
             render json: match, include: :users
         end
     end
@@ -24,7 +30,7 @@ class MatchesController < ApplicationController
     private
 
     def match_params
-        params.require(:match).permit(:win?, :match_type, :status, :organization_id)
+        params.require(:match).permit(:winner_id, :loser_id, :match_type, :status, :organization_id, :challenger, :recipient)
     end
 
 end

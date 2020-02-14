@@ -1,12 +1,18 @@
-const HOMEGIFS = ['https://media.giphy.com/media/lIv7H1vUVdaH6/giphy.gif', 'https://media.giphy.com/media/alMx8lxNgQv6g/giphy.gif', 'https://media.giphy.com/media/R0JQZRxyTmhTG/giphy.gif', 'https://media.giphy.com/media/aWtm6hVSJmRt6/giphy.gif', 'https://media.giphy.com/media/11rBFQqIe47Lck/giphy.gif', 'https://media.giphy.com/media/aDOiaVWvvZzdC/giphy.gif', 'https://media.giphy.com/media/Wyaq1InVpNDEc/giphy.gif', 'https://media.giphy.com/media/kjReZ2vUmMBfG/giphy.gif']
+const HOMEGIFS = ["https://media.giphy.com/media/kjReZ2vUmMBfG/giphy.mp4"," https://media.giphy.com/media/4IAzyrhy9rkis/giphy.mp4"]
 let currentUser;
 let currentOrg;
 const ORGANIZATIONS = [];
+const USERS = [];
 
 document.addEventListener('DOMContentLoaded', () => {
     fetch ('http://localhost:3000/organizations')
     .then(resp => resp.json())
     .then(json => ORGANIZATIONS.push(...json))
+
+
+    fetch ('http://localhost:3000/users')
+    .then(resp => resp.json())
+    .then(json => USERS.push(...json))
 
     setupPage();
 
@@ -26,7 +32,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function setGif(){
         const homeGifIndex = Math.floor(Math.random() * HOMEGIFS.length);
         const homeGif = document.getElementById('homeGif');
-        homeGif.setAttribute('src', HOMEGIFS[homeGifIndex]);
+        //debugger;
+        const gifSrc = makeElement('source', [{src: HOMEGIFS[homeGifIndex]}, {type: "video/mp4"}]);
+        homeGif.appendChild(gifSrc);
     }
 
     function setHome(){
@@ -51,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const orgTag = document.getElementById('organizations-tab');
         orgTag.addEventListener('click',e => {
             setActive(e.target);
-            indexOrganizationstionPage(document.getElementById('display-panel'));
+            !!currentUser ? indexOrganizationstionPage(document.getElementById('display-panel')) : orgPageNoUser()
         });
     }
 
@@ -71,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showHomePage(parentDiv){
         parentDiv.innerHTML = '';
-        parentDiv.appendChild(makeElement('iframe', [{class: 'giphy-embed'}, {id: 'homeGif'}, {frameborder: '0'}]));
+        parentDiv.appendChild(makeElement('video', [{autoplay: true},{loop: true}, {id: 'homeGif'}, {frameborder: '0'}]));
         setGif();
         const appDescription = document.createElement('p');
         appDescription.innerText = " Welcome to the ping-pong app! This app makes it easy for you to coordinate matches and keep track of stats within your organization, workplace, or other group of ping-pong lovers! "
@@ -82,6 +90,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const displayPanel = document.getElementById('display-panel');
         displayPanel.innerHTML = '';
         displayPanel.appendChild(createFormUser());
+    }
+
+    function orgPageNoUser(){
+        const lastOrgs = ORGANIZATIONS.slice(-5);
+        const lastOrgsPanel = document.getElementById('display-panel');
+        lastOrgsPanel.innerHTML = '';
+        lastOrgsPanel.appendChild(makeTextElement('h2', 'Showing most recent Organizations. Please log in or create an account to join.', [{}]));
+        const orgList = makeElement('ul', [{}]);
+        for (const org of lastOrgs){
+            const lastOrg = makeTextElement('li', org.name, [{id: `last-org-${org.id}`}]);
+            //orgList.addEventListener('click', e => showLastOrganization(org));
+            orgList.appendChild(lastOrg);
+        }
+
+        lastOrgsPanel.appendChild(orgList);
     }
 
     function createFormUser(){
@@ -129,8 +152,14 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .then(resp => resp.json())
         .then(json => {
-            currentUser = json;
-            showProfile();
+            //console.log(json)
+            if (json.error){
+                alert(json.error)
+            }
+            else{
+                currentUser = json;
+                showProfile();
+            }
         })
         .catch(error => console.log(error))
     }
@@ -152,8 +181,17 @@ document.addEventListener('DOMContentLoaded', () => {
             })
         })
         .then(resp => resp.json())
-        .then(json => {console.log(json)})
-        .catch(error => console.log(error))
+        .then(json => {
+            if (json.error){
+                alert(json.error)
+            }
+            else{
+                USERS.push(json);
+                currentUser = json;
+                showProfile();
+            }
+        })
+        //.catch(error => console.log(error))
     }
 
     function getDefaultIcon(){
@@ -161,7 +199,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showProfile(){
-        console.log(currentUser);
+       // console.log(currentUser);
+       const profileTab = document.getElementById('profile-tab');
+       profileTab.innerText = 'Profile';
         const displayPanel = document.getElementById('display-panel');
         displayPanel.innerHTML = '';
         const userRow = makeElement('div', [{class: 'row'}])
@@ -170,7 +210,75 @@ document.addEventListener('DOMContentLoaded', () => {
         displayAttributes(attributeDiv, iconDiv);
         userRow.appendChild(attributeDiv);
         userRow.appendChild(iconDiv);
+        const matchesRow = makeElement('div', [{class: 'row'}]);
+        createMatchesDisplays(matchesRow);
         displayPanel.appendChild(userRow);
+        displayPanel.appendChild(matchesRow);
+    }
+
+    function createMatchesDisplays(parentRow){
+        parentRow.appendChild(makeTextElement('h1', `${currentUser.username}'s matches:`, [{class: 'col-12'}]));
+        const pendingMatchesDiv = makeElement('div', [{class: 'col card'}, {id: 'pending-matches'}]);
+        parentRow.appendChild(pendingMatchesDiv);
+        pendingMatchesDiv.appendChild(makeTextElement('h3', 'Pending Matches', [{}]));
+        const pendingMatchList = makeElement('ul', [{}]);
+        pendingMatchesDiv.appendChild(pendingMatchList);
+        const pendingMatches = getMatches('Pending', 'recipient');
+        for (const pendingMatch of pendingMatches){
+           // debugger;
+            const challenger = USERS.find(user => {return user.id == pendingMatch.challenger});
+            const recipient = USERS.find(user => {return user.id == pendingMatch.recipient});
+            const pendingMatchListCard = makeTextElement('div', `You've been challenged by ${challenger.username}`, [{class: 'card'}, {id: pendingMatch.id}]);
+            const collapsableButtonDiv = makeElement('div', [{class: 'collapse'}]);
+            const acceptChallengeButton = makeTextElement('button', 'Accept Match', [{class: 'btn btn-primary'}, {type: 'submit'}]);
+            collapsableButtonDiv.appendChild(acceptChallengeButton);
+            pendingMatchListCard.addEventListener('click', e => toggleCollapse(e.target));
+            acceptChallengeButton.addEventListener('click', e => acceptMatch(pendingMatch));
+            pendingMatchList.appendChild(pendingMatchListCard);
+            pendingMatchListCard.appendChild(collapsableButtonDiv);
+            collapsableButtonDiv.appendChild(acceptChallengeButton);
+        }
+
+        function toggleCollapse(parent){
+            const collapsableDiv = parent.firstElementChild;
+            //debugger;
+            if (collapsableDiv.classList.contains('collapse')){
+                collapsableDiv.classList.remove('collapse');
+            }
+            else{
+                collapsableDiv.classList.add('collapse');
+            }
+        }
+
+        const acceptedMatchDiv = makeElement('div', [{class: 'col card'}, {id: 'accepted-matches'}]);
+        acceptedMatchDiv.appendChild(makeTextElement('h3', 'Accepted Matches:', [{}]));
+        const acceptedMatchList = makeElement('ul', [{}]);
+        //debugger;
+        const acceptedMatches = [];
+        currentUser.matches.filter(match => {
+            //debugger;
+            if (match.status === 'Accepted'){
+                acceptedMatches.push(match);
+            }
+        })
+        for (const acceptedMatch of acceptedMatches){
+            const challenger = USERS.find(user => {return user.id == acceptedMatch.challenger});
+            const recipient = USERS.find(user => {return user.id == acceptedMatch.recipient});
+            acceptedMatchList.appendChild(makeTextElement('li', `Challenger ${challenger.username} vs. ${recipient.username}`, [{class: 'red bold'}, {id: acceptedMatch.id}]));
+        }
+        acceptedMatchDiv.appendChild(acceptedMatchList);
+        parentRow.appendChild(acceptedMatchDiv);
+    }
+
+    function getMatches(matchType, matchingId){
+        const userMatches = [];
+        currentUser.matches.filter(match => {
+            //debugger;
+            if (match.status === matchType && currentUser.id === match[matchingId]){
+                userMatches.push(match);
+            }
+        })
+        return userMatches;
     }
 
     function displayAttributes(attributeDiv, iconDiv){
@@ -179,20 +287,51 @@ document.addEventListener('DOMContentLoaded', () => {
         for (const key in currentUser){
             //console.log(key, currentUser[key]);
             if (key === 'profile_icon'){
-                iconDiv.appendChild(makeElement('img', [{src: currentUser[key]}]))
+                iconDiv.appendChild(makeElement('img', [{src: currentUser[key]}, {width: '200px'}]))
             }
-            else{
+            else if(['id', 'matches', 'organizations'].includes(key)){
+
+            }
+            else if(currentUser[key]){
                 attributeList.appendChild(makeTextElement('li', `${key}: ${currentUser[key]}`, [{}]));
             }
            
         }
     }
 
+    function acceptMatch(match){
+        fetch(`http://localhost:3000/matches/${match.id}`, {
+            method: 'PATCH',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                status: 'Accepted'
+            })
+        })
+        .then(resp => resp.json())
+        .then(json => {
+            //currentOrg = json;
+            const pendingMatchesList = document.querySelector('#pending-matches ul');
+            const acceptedMatchList = document.querySelector('#accepted-matches ul');
+            pendingMatchesList.removeChild(document.getElementById(match.id));
+            acceptedMatchList.appendChild(document.getElementById(match.id))
+            console.log(json);
+        })
+    }
+
     function indexOrganizationstionPage(parent){
-        console.log(currentUser.organizations);
+        //console.log(currentUser.organizations);
         parent.innerHTML = '';
         const searchRow = makeElement('div', [{class: 'row'}]);
-        searchRow.appendChild(makeElement('input', [{class: 'form-control'}, {type: 'text'}, {placeholder: 'Search all Organizations'}, {'aria-label': 'Search'}, {id: 'findOrg'}]))
+        searchForm = makeElement('form', [{class: 'form-inline md-form mr-auto mb-4'}])
+        const searchButton = makeTextElement('button', 'Search', [{class: 'btn btn-elegant btn-rounded btn-sm my-0'}, {type: 'submit'}, {id: 'search-button'}]);
+        const searchBar = makeElement('input', [{class: 'form-control mr-sm-2'}, {type: 'text'}, {placeholder: 'Search all Organizations'}, {'aria-label': 'Search'}, {id: 'findOrg'}]);
+        searchButton.addEventListener('click',e => findOrg());
+        searchForm.appendChild(searchBar);
+        searchForm.appendChild(searchButton);
+        searchRow.appendChild(searchForm);
         parent.appendChild(searchRow);
         const orgRow = makeElement('div', [{class: 'row'}]);
         const myOrgs = makeElement('div', [{class: 'col'}, {id: 'my-organizations'}]);
@@ -212,7 +351,40 @@ document.addEventListener('DOMContentLoaded', () => {
         orgRow.appendChild(createOrgForm);
         orgRow.appendChild(makeElement('div', [{class: 'col collapse'}, {id: 'show-organization'}]));
         orgRow.appendChild(makeElement('div', [{class: 'col collapse'}, {id: 'show-user'}]));
+        orgRow.appendChild(makeElement('div', [{class: 'col collapse'}, {id: 'show-found-organizations'}]));
+        orgRow.appendChild(makeElement('div', [{class: 'col-12 collapse'}, {id: 'show-found-organization'}]));
         parent.appendChild(orgRow);
+    }
+
+    function findOrg(){
+        //debugger;
+        const searchButton = document.getElementById('findOrg');
+        const searchTerm = searchButton.value.split(' ')[0];
+        const foundOrgs = [];
+        ORGANIZATIONS.filter(org => {
+            /*
+            LET THEM BE CLICKED TO SHOW THEIR PAGE, JOINABLE IF NOT ALREADY JOINED
+            */
+           if(org.name.includes(searchTerm)){
+            foundOrgs.push(org)
+           }
+        })
+        //console.log(foundOrgs);
+        showFoundOrgs(foundOrgs);
+    }
+
+    function showFoundOrgs(orgs){
+        const showFoundOrgs = document.getElementById('show-found-organizations');
+        showFoundOrgs.innerHTML = '';
+        showFoundOrgs.classList.remove('collapse');
+        const foundOrgsList = makeElement('ul', [{}]);
+        showFoundOrgs.appendChild(makeTextElement('h3', 'Organizations found by advanced search algorithm:', [{}]));
+        showFoundOrgs.appendChild(foundOrgsList);
+        for (const org of orgs){
+            const foundOrg = makeTextElement('li', org.name, [{id: `found-${org.id}`}]);
+            foundOrg.addEventListener('click', e => showFoundOrganization(org));
+            foundOrgsList.appendChild(foundOrg);
+        }
     }
 
     function orgsToggle(org){
@@ -227,6 +399,34 @@ document.addEventListener('DOMContentLoaded', () => {
             myOrgs.classList.add('collapse');
             createOrg.classList.add('collapse');
         }
+    }
+
+    function showFoundOrganization(org){
+        const orgDiv = document.getElementById('show-found-organization');
+        orgDiv.innerHTML = '';
+        orgDiv.classList.remove('collapse');
+        // const iconRow = makeElement('div', [{class: 'row'}]);
+        // orgDiv.appendChild(iconRow);
+        const orgCard = makeElement('div', [{class: 'card bg-dark text-white'}]);
+        orgDiv.appendChild(orgCard);
+        orgCard.appendChild(makeElement('img', [{class: 'card-img'}, {src: org.icon_url}, {alt: 'card image'}]));
+        const divOverlay = makeElement('div', [{class: 'card-img-overlay'}]);
+        divOverlay.appendChild(makeTextElement('h5', org.name, [{class: 'card-title'}]));
+        orgCard.appendChild(divOverlay);
+        const joinButton = makeTextElement('button', 'Join Org', [{class: 'btn btn-primary'}, {type: 'submit'}]);
+        joinButton.addEventListener('click', e => addUserToOrg(org));
+
+        if( !!currentUser){
+        if (org.users.find(user => {return user.id === currentUser.id})){
+            //console.log('hello');
+        }
+        else{
+            orgDiv.appendChild(joinButton);
+        }
+    }
+  
+
+        //iconRow.appendChild(makeElement('img', [{src: org.icon_url}, {class: 'image'}]))
     }
 
     function showOrganization(org, orgPage){
@@ -251,6 +451,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function userOptions(name, id){
         //debugger;
         const showUserPage = document.getElementById('show-user');
+        showUserPage.innerHTML = '';
         showUserPage.classList.remove('collapse');
         const statRow = makeElement('div', [{class: 'row'}]);
         showUserPage.appendChild(statRow);
@@ -280,7 +481,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 status: 'Pending',
                 match_type: 'challenge',
                 organization_id: currentOrg.id,
-                user_ids: [challengedId, currentUser.id]
+                challenger: currentUser.id,
+                recipient: challengedId
             })
         })
         .then(resp => resp.json())

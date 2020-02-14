@@ -3,7 +3,6 @@ class CreateUserMatches < ActiveRecord::Migration[6.0]
     create_table :user_matches do |t|
       t.references :user, null: false, foreign_key: true
       t.references :match, null: false, foreign_key: true
-
       t.timestamps
     end
   end

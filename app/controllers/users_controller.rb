@@ -2,7 +2,7 @@ class UsersController < ApplicationController
 
     def index
         users = User.all
-        render json: users, except: :id
+        render json: users
     end
 
     def show
@@ -26,7 +26,7 @@ class UsersController < ApplicationController
         if !!user
             render json: user, include: [:matches, :organizations]
         else
-            render json: {errors: errors.full_messages}
+            render json: {error: "Invalid Username/Password combination. Please try again or select create account"}
         end
 
     end
@@ -35,6 +35,8 @@ class UsersController < ApplicationController
         user = User.find(params[:id])
         if user.update(user_params)
             render json: user, include: [:matches, :organizations]
+        else
+            render json: {errors: errors.full_messages}
         end
     end
 

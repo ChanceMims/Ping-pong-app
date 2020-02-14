@@ -17,7 +17,10 @@ ActiveRecord::Schema.define(version: 2020_02_07_230133) do
 
   create_table "matches", force: :cascade do |t|
     t.string "status"
-    t.boolean "win?"
+    t.integer "winner_id"
+    t.integer "loser_id"
+    t.integer "challenger"
+    t.integer "recipient"
     t.string "match_type"
     t.bigint "organization_id", null: false
     t.index ["organization_id"], name: "index_matches_on_organization_id"
