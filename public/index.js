@@ -52,7 +52,6 @@ document.addEventListener("DOMContentLoaded", () => {
     homeTab.addEventListener("click", e => {
       setActive(e.target.id);
       setGif();
-      //showHomePage(document.getElementById("home-panel"));
     });
   }
 
@@ -70,11 +69,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const orgTag = document.getElementById("organizations-tab");
     orgTag.addEventListener("click", e => {
       setActive(e.target.id);
-      //   !!currentUser
-      //     ? indexOrganizationstionPage(
-      //         document.getElementById("organizations-panel")
-      //       )
-      //     : orgPageNoUser();
     });
   }
 
@@ -87,13 +81,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function setActive(clickedTab) {
-    // console.log("to", tab.id);
     const activateId = clickedTab.split("-")[0] + "-panel";
-    // console.log(activateId);
 
     const activatePanel = document.getElementById(activateId);
 
-    //console.log("activate", activatePanel);
     activatePanel.removeAttribute("hidden");
 
     const activeTabs = document.getElementsByClassName("active");
@@ -103,10 +94,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const deactivatePanel = document.getElementById(deactivateId);
 
-    //console.log("deactivate", deactivatePanel);
     deactivatePanel.setAttribute("hidden", true);
 
-    // console.log("from", activeTab.id);
     activeTab.classList.remove("active");
 
     const activateClickedTab = document.getElementById(clickedTab);
@@ -121,15 +110,6 @@ document.addEventListener("DOMContentLoaded", () => {
         showOrganizations();
     }
   }
-
-  //   function showHomePage(parentDiv) {
-  //     // parentDiv.innerHTML = '';
-  //     // parentDiv.appendChild(makeElement('video', [{autoplay: true},{loop: true}, {id: 'homeGif'}, {frameborder: '0'}]));
-  //     setGif();
-  //     // const appDescription = document.createElement('p');
-  //     // appDescription.innerText = " Welcome to the ping-pong app! This app makes it easy for you to coordinate matches and keep track of stats within your organization, workplace, or other group of ping-pong lovers! "
-  //     //parentDiv.appendChild(appDescription);
-  //   }
 
   function showHome() {
     setGif();
@@ -147,7 +127,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function showProfile() {
-    !!currentUser ? "" : showLogin();
+    !!currentUser ? showUser() : showLogin();
   }
 
   function showOrganizations() {
@@ -170,7 +150,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const lastOrg = makeTextElement("li", org.name, [
         { id: `last-org-${org.id}` }
       ]);
-      //orgList.addEventListener('click', e => showLastOrganization(org));
       orgList.appendChild(lastOrg);
     }
 
@@ -192,7 +171,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function logIn(username, password) {
-    // console.log(username, password);
     fetch("http://localhost:3000/users/login", {
       method: "POST",
       headers: {
@@ -213,10 +191,7 @@ document.addEventListener("DOMContentLoaded", () => {
           currentUser = json;
           const loginPanel = document.getElementById("login-panel");
           loginPanel.setAttribute("hidden", true);
-          const userPanel = document.getElementById("user-panel");
-          userPanel.removeAttribute("hidden");
-          const profileTab = document.getElementById("profile-tab");
-          profileTab.innerText = "Profile";
+          showUser();
         }
       });
   }
@@ -247,50 +222,27 @@ document.addEventListener("DOMContentLoaded", () => {
           setActive(document.getElementById("profile-tab"));
         }
       });
-    //.catch(error => console.log(error))
   }
 
-  //   function getDefaultIcon() {
-  //     return "/images/ping_pong_1.jpg";
-  //   }
+  function showUser() {
+    const profileTab = document.getElementById("profile-tab");
+    profileTab.innerText = "Profile";
+    const userPanel = document.getElementById("user-panel");
+    userPanel.removeAttribute("hidden");
 
-  //   function showProfile() {
-  //     // console.log(currentUser);
-  //     const profileTab = document.getElementById("profile-tab");
-  //     profileTab.innerText = "Profile";
-  //     const displayPanel = document.getElementById("display-panel");
-  //     displayPanel.innerHTML = "";
-  //     const userRow = makeElement("div", [{ class: "row" }]);
-  //     const attributeDiv = makeElement("div", [{ class: "col" }]);
-  //     const iconDiv = makeElement("div", [{ class: "col" }]);
-  //     displayAttributes(attributeDiv, iconDiv);
-  //     userRow.appendChild(attributeDiv);
-  //     userRow.appendChild(iconDiv);
-  //     const matchesRow = makeElement("div", [{ class: "row" }]);
-  //     createMatchesDisplays(matchesRow);
-  //     displayPanel.appendChild(userRow);
-  //     displayPanel.appendChild(matchesRow);
-  //   }
+    createMatchesDisplays();
+  }
 
-  function createMatchesDisplays(parentRow) {
-    parentRow.appendChild(
-      makeTextElement("h1", `${currentUser.username}'s matches:`, [
-        { class: "col-12" }
-      ])
-    );
-    const pendingMatchesDiv = makeElement("div", [
-      { class: "col card" },
-      { id: "pending-matches" }
-    ]);
-    parentRow.appendChild(pendingMatchesDiv);
-    pendingMatchesDiv.appendChild(
-      makeTextElement("h3", "Pending Matches", [{}])
-    );
-    const pendingMatchList = makeElement("ul", [{}]);
-    pendingMatchesDiv.appendChild(pendingMatchList);
-    const pendingMatches = getMatches("Pending", "recipient");
+    function createMatchesDisplays() {
+        const profileHeader = document.getElementById('profile-header')
+        profileHeader.innerText = `${currentUser.username}'s matches:`
+ 
+  
+      const pendingMatchList 
+      
+      const pendingMatches = getMatches("Pending", "recipient");
+      
     for (const pendingMatch of pendingMatches) {
-      // debugger;
       const challenger = USERS.find(user => {
         return user.id == pendingMatch.challenger;
       });
@@ -321,7 +273,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function toggleCollapse(parent) {
       const collapsableDiv = parent.firstElementChild;
-      //debugger;
+      //;
       if (collapsableDiv.classList.contains("collapse")) {
         collapsableDiv.classList.remove("collapse");
       } else {

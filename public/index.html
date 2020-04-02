@@ -87,10 +87,17 @@
         </div>
         <div id="profile-panel" hidden>
           <div id="user-panel" hidden>
-            <h1>profile</h1>
+            <div class="row" id="matches-panel">
+              <h1 id="profile-header">profile</h1>
 
-            <div id="pending-matches"></div>
-            <div id="accepted-matches"></div>
+              <div class="col card" id="pending-matches">
+                <h3>Pending Matches:</h3>
+                <ul id="pending-match-list"></ul>
+              </div>
+              <div class="col card" id="accepted-matches">
+                <h3>Accepted Matches:</h3>
+              </div>
+            </div>
           </div>
 
           <div id="login-panel" hidden>
