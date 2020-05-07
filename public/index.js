@@ -3,7 +3,7 @@ const HOMEGIFS = [
   "https://media.giphy.com/media/4IAzyrhy9rkis/giphy.mp4",
   "https://media.giphy.com/media/Z3cYjr662Puw/giphy.mp4",
   "https://media.giphy.com/media/lIv7H1vUVdaH6/giphy.mp4",
-  "https://media.giphy.com/media/QrWLAievAvV4Y/giphy.mp4"
+  "https://media.giphy.com/media/QrWLAievAvV4Y/giphy.mp4",
 ];
 let currentUser;
 let currentOrg;
@@ -12,12 +12,12 @@ const USERS = [];
 
 document.addEventListener("DOMContentLoaded", () => {
   fetch("http://localhost:3000/organizations")
-    .then(resp => resp.json())
-    .then(json => ORGANIZATIONS.push(...json));
+    .then((resp) => resp.json())
+    .then((json) => ORGANIZATIONS.push(...json));
 
   fetch("http://localhost:3000/users")
-    .then(resp => resp.json())
-    .then(json => USERS.push(...json));
+    .then((resp) => resp.json())
+    .then((json) => USERS.push(...json));
 
   setupPage();
 
@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function setHome() {
     const homeTab = document.getElementById("home-tab");
-    homeTab.addEventListener("click", e => {
+    homeTab.addEventListener("click", (e) => {
       setActive(e.target.id);
       setGif();
     });
@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function setProfile() {
     const profileTab = document.getElementById("profile-tab");
-    profileTab.addEventListener("click", e => {
+    profileTab.addEventListener("click", (e) => {
       setActive(e.target.id);
       !!currentUser
         ? (profileTab.innerText = "Profile")
@@ -67,14 +67,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function setOrganizations() {
     const orgTag = document.getElementById("organizations-tab");
-    orgTag.addEventListener("click", e => {
+    orgTag.addEventListener("click", (e) => {
       setActive(e.target.id);
     });
   }
 
   function setStats() {
     const statsTab = document.getElementById("stats-tab");
-    statsTab.addEventListener("click", e => {
+    statsTab.addEventListener("click", (e) => {
       setActive(e.target.id);
       console.log("stats");
     });
@@ -83,31 +83,33 @@ document.addEventListener("DOMContentLoaded", () => {
   function setActive(clickedTab) {
     const activateId = clickedTab.split("-")[0] + "-panel";
 
-    const activatePanel = document.getElementById(activateId);
-
-    activatePanel.removeAttribute("hidden");
-
     const activeTabs = document.getElementsByClassName("active");
     const activeTab = activeTabs[0];
-
     const deactivateId = activeTab.id.split("-")[0] + "-panel";
 
-    const deactivatePanel = document.getElementById(deactivateId);
+    if (activateId === deactivateId) {
+    } else {
+      const activatePanel = document.getElementById(activateId);
 
-    deactivatePanel.setAttribute("hidden", true);
+      activatePanel.removeAttribute("hidden");
 
-    activeTab.classList.remove("active");
+      const deactivatePanel = document.getElementById(deactivateId);
 
-    const activateClickedTab = document.getElementById(clickedTab);
-    activateClickedTab.classList.add("active");
+      deactivatePanel.setAttribute("hidden", true);
 
-    switch (clickedTab) {
-      case "home-tab":
-        showHome();
-      case "profile-tab":
-        !!currentUser ? showProfile() : showLogin();
-      case "organizations-tab":
-        showOrganizations();
+      activeTab.classList.remove("active");
+
+      const activateClickedTab = document.getElementById(clickedTab);
+      activateClickedTab.classList.add("active");
+
+      switch (clickedTab) {
+        case "home-tab":
+          showHome();
+        case "profile-tab":
+          showProfile();
+        case "organizations-tab":
+          showOrganizations();
+      }
     }
   }
 
@@ -121,7 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const loginForm = document.getElementById("login-form");
 
-    loginForm.addEventListener("submit", e =>
+    loginForm.addEventListener("submit", (e) =>
       logIn(e.target.elements[0].value, e.target.elements[1].value)
     );
   }
@@ -131,8 +133,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function showOrganizations() {
-    !!currentUser ? "" : orgPageNoUser();
+    !!currentUser ? myOrgs() : orgPageNoUser();
   }
+
+  function myOrgs() {}
 
   function orgPageNoUser() {
     const lastOrgs = ORGANIZATIONS.slice(-5);
@@ -148,7 +152,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const orgList = makeElement("ul", [{}]);
     for (const org of lastOrgs) {
       const lastOrg = makeTextElement("li", org.name, [
-        { id: `last-org-${org.id}` }
+        { id: `last-org-${org.id}` },
       ]);
       orgList.appendChild(lastOrg);
     }
@@ -175,15 +179,15 @@ document.addEventListener("DOMContentLoaded", () => {
       method: "POST",
       headers: {
         Accept: "application/json",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         username,
-        password
-      })
+        password,
+      }),
     })
-      .then(resp => resp.json())
-      .then(json => {
+      .then((resp) => resp.json())
+      .then((json) => {
         //console.log(json)
         if (json.error) {
           alert(json.error);
@@ -204,16 +208,16 @@ document.addEventListener("DOMContentLoaded", () => {
       method: "POST",
       headers: {
         Accept: "application/json",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         username,
         password,
-        profile_icon
-      })
+        profile_icon,
+      }),
     })
-      .then(resp => resp.json())
-      .then(json => {
+      .then((resp) => resp.json())
+      .then((json) => {
         if (json.error) {
           alert(json.error);
         } else {
@@ -233,20 +237,19 @@ document.addEventListener("DOMContentLoaded", () => {
     createMatchesDisplays();
   }
 
-    function createMatchesDisplays() {
-        const profileHeader = document.getElementById('profile-header')
-        profileHeader.innerText = `${currentUser.username}'s matches:`
- 
-  
-      const pendingMatchList 
-      
-      const pendingMatches = getMatches("Pending", "recipient");
-      
+  function createMatchesDisplays() {
+    console.log(currentUser);
+
+    const profileHeader = document.getElementById("profile-header");
+    profileHeader.innerText = `${currentUser.username}'s matches:`;
+
+    const pendingMatches = getMatches("Pending", "recipient");
+
     for (const pendingMatch of pendingMatches) {
-      const challenger = USERS.find(user => {
+      const challenger = USERS.find((user) => {
         return user.id == pendingMatch.challenger;
       });
-      const recipient = USERS.find(user => {
+      const recipient = USERS.find((user) => {
         return user.id == pendingMatch.recipient;
       });
       const pendingMatchListCard = makeTextElement(
@@ -257,13 +260,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const collapsableButtonDiv = makeElement("div", [{ class: "collapse" }]);
       const acceptChallengeButton = makeTextElement("button", "Accept Match", [
         { class: "btn btn-primary" },
-        { type: "submit" }
+        { type: "submit" },
       ]);
       collapsableButtonDiv.appendChild(acceptChallengeButton);
-      pendingMatchListCard.addEventListener("click", e =>
+      pendingMatchListCard.addEventListener("click", (e) =>
         toggleCollapse(e.target)
       );
-      acceptChallengeButton.addEventListener("click", e =>
+      acceptChallengeButton.addEventListener("click", (e) =>
         acceptMatch(pendingMatch)
       );
       pendingMatchList.appendChild(pendingMatchListCard);
@@ -283,27 +286,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const acceptedMatchDiv = makeElement("div", [
       { class: "col card" },
-      { id: "accepted-matches" }
+      { id: "accepted-matches" },
     ]);
     acceptedMatchDiv.appendChild(
       makeTextElement("h3", "Accepted Matches:", [{}])
     );
     const acceptedMatchList = makeElement("ul", [
-      { id: "accepted-matches-list" }
+      { id: "accepted-matches-list" },
     ]);
     //debugger;
     const acceptedMatches = [];
-    currentUser.matches.filter(match => {
+    currentUser.matches.filter((match) => {
       //debugger;
       if (match.status === "Accepted") {
         acceptedMatches.push(match);
       }
     });
     for (const acceptedMatch of acceptedMatches) {
-      const challenger = USERS.find(user => {
+      const challenger = USERS.find((user) => {
         return user.id == acceptedMatch.challenger;
       });
-      const recipient = USERS.find(user => {
+      const recipient = USERS.find((user) => {
         return user.id == acceptedMatch.recipient;
       });
 
@@ -312,20 +315,12 @@ document.addEventListener("DOMContentLoaded", () => {
         `Challenger ${challenger.username} vs. ${recipient.username}`,
         [{ class: "red bold" }, { id: acceptedMatch.id }]
       );
-      acceptedMatchElement.addEventListener("click", e =>
+      acceptedMatchElement.addEventListener("click", (e) =>
         reportScore(acceptedMatch)
       );
       acceptedMatchList.appendChild(acceptedMatchElement);
     }
     acceptedMatchDiv.appendChild(acceptedMatchList);
-
-    ///////Obvioisly does not belong here!!! please move
-    parentRow.appendChild(
-      makeElement("div", [
-        { class: "col card collapse" },
-        { id: "report-score" }
-      ])
-    );
 
     parentRow.appendChild(acceptedMatchDiv);
   }
@@ -341,7 +336,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const scoreForm = makeElement("form", [{}]);
     scoreFormDiv.appendChild(scoreForm);
     const formContainer = makeElement("div", [
-      { class: "form-row align-items-center" }
+      { class: "form-row align-items-center" },
     ]);
     scoreForm.appendChild(formContainer);
     const selectContainer = makeElement("div", [{ class: "col-auto my-1" }]);
@@ -351,16 +346,16 @@ document.addEventListener("DOMContentLoaded", () => {
     );
     const selectForm = makeElement("select", [
       { class: "custom-select" },
-      { id: "winnerSelect" }
+      { id: "winnerSelect" },
     ]);
     selectContainer.appendChild(selectForm);
     selectForm.appendChild(
       makeTextElement("option", "Select Winner", [{ selected: true }])
     );
-    const challenger = USERS.find(user => {
+    const challenger = USERS.find((user) => {
       return match.challenger === user.id;
     });
-    const recipient = USERS.find(user => {
+    const recipient = USERS.find((user) => {
       return match.recipient === user.id;
     });
 
@@ -375,9 +370,9 @@ document.addEventListener("DOMContentLoaded", () => {
     scoreForm.appendChild(buttonDiv);
     const submitScoreButton = makeTextElement("button", "Submit Winner", [
       { type: "submit" },
-      { class: "btn btn-primary" }
+      { class: "btn btn-primary" },
     ]);
-    scoreForm.addEventListener("submit", e => {
+    scoreForm.addEventListener("submit", (e) => {
       submitWinner(e.target, match.id);
     });
     buttonDiv.appendChild(submitScoreButton);
@@ -391,16 +386,16 @@ document.addEventListener("DOMContentLoaded", () => {
       method: "PATCH",
       headers: {
         Accept: "application/json",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         winner_id,
         loser_id,
-        status: "Complete"
-      })
+        status: "Complete",
+      }),
     })
-      .then(resp => resp.json())
-      .then(json => {
+      .then((resp) => resp.json())
+      .then((json) => {
         const reportScore = document.getElementById("report-score");
         reportScore.classList.add("collapse");
         const acceptedMatchesList = document.getElementById(
@@ -413,7 +408,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function getMatches(matchType, matchingId) {
     const userMatches = [];
-    currentUser.matches.filter(match => {
+    currentUser.matches.filter((match) => {
       //debugger;
       if (match.status === matchType && currentUser.id === match[matchingId]) {
         userMatches.push(match);
@@ -422,37 +417,19 @@ document.addEventListener("DOMContentLoaded", () => {
     return userMatches;
   }
 
-  //   function displayAttributes(attributeDiv, iconDiv) {
-  //     const attributeList = document.createElement("ul");
-  //     attributeDiv.appendChild(attributeList);
-  //     for (const key in currentUser) {
-  //       //console.log(key, currentUser[key]);
-  //       if (key === "profile_icon") {
-  //         iconDiv.appendChild(
-  //           makeElement("img", [{ src: currentUser[key] }, { width: "200px" }])
-  //         );
-  //       } else if (["id", "matches", "organizations"].includes(key)) {
-  //       } else if (currentUser[key]) {
-  //         attributeList.appendChild(
-  //           makeTextElement("li", `${key}: ${currentUser[key]}`, [{}])
-  //         );
-  //       }
-  //     }
-  //   }
-
   function acceptMatch(match) {
     fetch(`http://localhost:3000/matches/${match.id}`, {
       method: "PATCH",
       headers: {
         Accept: "application/json",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        status: "Accepted"
-      })
+        status: "Accepted",
+      }),
     })
-      .then(resp => resp.json())
-      .then(json => {
+      .then((resp) => resp.json())
+      .then((json) => {
         //currentOrg = json;
         const pendingMatchesList = document.querySelector(
           "#pending-matches ul"
@@ -471,21 +448,21 @@ document.addEventListener("DOMContentLoaded", () => {
     parent.innerHTML = "";
     const searchRow = makeElement("div", [{ class: "row" }]);
     searchForm = makeElement("form", [
-      { class: "form-inline md-form mr-auto mb-4" }
+      { class: "form-inline md-form mr-auto mb-4" },
     ]);
     const searchButton = makeTextElement("button", "Search", [
       { class: "btn btn-elegant btn-rounded btn-sm my-0" },
       { type: "submit" },
-      { id: "search-button" }
+      { id: "search-button" },
     ]);
     const searchBar = makeElement("input", [
       { class: "form-control mr-sm-2" },
       { type: "text" },
       { placeholder: "Search all Organizations" },
       { "aria-label": "Search" },
-      { id: "findOrg" }
+      { id: "findOrg" },
     ]);
-    searchButton.addEventListener("click", e => findOrg());
+    searchButton.addEventListener("click", (e) => findOrg());
     searchForm.appendChild(searchBar);
     searchForm.appendChild(searchButton);
     searchRow.appendChild(searchForm);
@@ -493,40 +470,40 @@ document.addEventListener("DOMContentLoaded", () => {
     const orgRow = makeElement("div", [{ class: "row" }]);
     const myOrgs = makeElement("div", [
       { class: "col" },
-      { id: "my-organizations" }
+      { id: "my-organizations" },
     ]);
     const orgList = makeElement("ul", [{}]);
     for (const org of currentUser.organizations) {
       console.log(org);
       const orgListElement = makeTextElement("li", org.name, [{}]);
-      orgListElement.addEventListener("click", e => orgsToggle(org));
+      orgListElement.addEventListener("click", (e) => orgsToggle(org));
       orgList.appendChild(orgListElement);
     }
     myOrgs.appendChild(orgList);
     const createOrgForm = makeElement("div", [
       { class: "col" },
-      { id: "create-organization" }
+      { id: "create-organization" },
     ]);
     const createOrgButton = makeTextElement("button", "Create New Org", [
       { type: "submit" },
       { class: "btn, btn-primary" },
-      { id: "createOrgButton" }
+      { id: "createOrgButton" },
     ]);
     formBuilder(
       createOrgForm,
       [
         { name: "Organization Name" },
-        { icon_url: "Enter a URL for the organizations icon" }
+        { icon_url: "Enter a URL for the organizations icon" },
       ],
       createOrgButton
     );
-    createOrgForm.addEventListener("submit", e => createOrg(e.target));
+    createOrgForm.addEventListener("submit", (e) => createOrg(e.target));
     orgRow.appendChild(myOrgs);
     orgRow.appendChild(createOrgForm);
     orgRow.appendChild(
       makeElement("div", [
         { class: "col collapse" },
-        { id: "show-organization" }
+        { id: "show-organization" },
       ])
     );
     orgRow.appendChild(
@@ -535,13 +512,13 @@ document.addEventListener("DOMContentLoaded", () => {
     orgRow.appendChild(
       makeElement("div", [
         { class: "col collapse" },
-        { id: "show-found-organizations" }
+        { id: "show-found-organizations" },
       ])
     );
     orgRow.appendChild(
       makeElement("div", [
         { class: "col-12 collapse" },
-        { id: "show-found-organization" }
+        { id: "show-found-organization" },
       ])
     );
     parent.appendChild(orgRow);
@@ -552,7 +529,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const searchButton = document.getElementById("findOrg");
     const searchTerm = searchButton.value.split(" ")[0];
     const foundOrgs = [];
-    ORGANIZATIONS.filter(org => {
+    ORGANIZATIONS.filter((org) => {
       /*
             LET THEM BE CLICKED TO SHOW THEIR PAGE, JOINABLE IF NOT ALREADY JOINED
             */
@@ -579,9 +556,9 @@ document.addEventListener("DOMContentLoaded", () => {
     showFoundOrgs.appendChild(foundOrgsList);
     for (const org of orgs) {
       const foundOrg = makeTextElement("li", org.name, [
-        { id: `found-${org.id}` }
+        { id: `found-${org.id}` },
       ]);
-      foundOrg.addEventListener("click", e => showFoundOrganization(org));
+      foundOrg.addEventListener("click", (e) => showFoundOrganization(org));
       foundOrgsList.appendChild(foundOrg);
     }
   }
@@ -604,15 +581,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const orgDiv = document.getElementById("show-found-organization");
     orgDiv.innerHTML = "";
     orgDiv.classList.remove("collapse");
-    // const iconRow = makeElement('div', [{class: 'row'}]);
-    // orgDiv.appendChild(iconRow);
+
     const orgCard = makeElement("div", [{ class: "card bg-dark text-white" }]);
     orgDiv.appendChild(orgCard);
     orgCard.appendChild(
       makeElement("img", [
         { class: "card-img" },
         { src: org.icon_url },
-        { alt: "card image" }
+        { alt: "card image" },
       ])
     );
     const divOverlay = makeElement("div", [{ class: "card-img-overlay" }]);
@@ -622,40 +598,35 @@ document.addEventListener("DOMContentLoaded", () => {
     orgCard.appendChild(divOverlay);
     const joinButton = makeTextElement("button", "Join Org", [
       { class: "btn btn-primary" },
-      { type: "submit" }
+      { type: "submit" },
     ]);
-    joinButton.addEventListener("click", e => addUserToOrg(org));
+    joinButton.addEventListener("click", (e) => addUserToOrg(org));
 
     if (!!currentUser) {
       if (
-        org.users.find(user => {
+        org.users.find((user) => {
           return user.id === currentUser.id;
         })
       ) {
-        //console.log('hello');
       } else {
         orgDiv.appendChild(joinButton);
       }
     }
-
-    //iconRow.appendChild(makeElement('img', [{src: org.icon_url}, {class: 'image'}]))
   }
 
   function showOrganization(org, orgPage) {
     const userList = makeElement("ul", [{}]);
     orgPage.appendChild(userList);
-    currentOrg = ORGANIZATIONS.find(organization => organization.id === org.id);
-    //debugger;
+    currentOrg = ORGANIZATIONS.find(
+      (organization) => organization.id === org.id
+    );
     for (const user of currentOrg.users) {
-      //console.log(user, currentUser);
-      //debugger;
-
       const userListElement = makeTextElement("li", user.username, [
         { id: `user-${user.username}` },
-        { value: user.id }
+        { value: user.id },
       ]);
       if (user.id !== currentUser.id) {
-        userListElement.addEventListener("click", e =>
+        userListElement.addEventListener("click", (e) =>
           userOptions(e.target.innerText, e.target.value)
         );
       }
@@ -665,7 +636,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function userOptions(name, id) {
-    //debugger;
     const showUserPage = document.getElementById("show-user");
     showUserPage.innerHTML = "";
     showUserPage.classList.remove("collapse");
@@ -678,11 +648,13 @@ document.addEventListener("DOMContentLoaded", () => {
       { type: "submit" },
       { class: "btn, btn-primary" },
       { id: "challenge-button" },
-      { value: id }
+      { value: id },
     ]);
     //debugger;
     //const challengeButton = document.getElementById('challenge-button');
-    challengeButton.addEventListener("click", e => createMatch(e.target.value));
+    challengeButton.addEventListener("click", (e) =>
+      createMatch(e.target.value)
+    );
     userContainer.appendChild(challengeButton);
     showUserPage.appendChild(userRow);
     // console.log('userOptions():', name);
@@ -696,46 +668,24 @@ document.addEventListener("DOMContentLoaded", () => {
       method: "POST",
       headers: {
         Accept: "application/json",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         status: "Pending",
         match_type: "challenge",
         organization_id: currentOrg.id,
         challenger: currentUser.id,
-        recipient: challengedId
-      })
+        recipient: challengedId,
+      }),
     })
-      .then(resp => resp.json())
-      .then(json => alertPlayer(json));
+      .then((resp) => resp.json())
+      .then((json) => alertPlayer(json));
   }
 
   function alertPlayer(match) {
     //debugger;
     console.log("challenging player", match);
   }
-
-  //   function formBuilder(parent, options, submitButton) {
-  //     const orgForm = document.createElement("form");
-  //     parent.appendChild(orgForm);
-  //     for (const option of options) {
-  //       for (const key in option) {
-  //         orgForm.appendChild(
-  //           makeTextElement("label", option[key], [{ for: key }])
-  //         );
-  //         orgForm.appendChild(
-  //           makeElement("input", [
-  //             { type: "text" },
-  //             { class: "form-control" },
-  //             { id: key },
-  //             { required: true }
-  //           ])
-  //         );
-  //         //console.log(key, option[key]);
-  //       }
-  //     }
-  //     orgForm.appendChild(submitButton);
-  //   }
 
   function createOrg(form) {
     const name = document.getElementById("name").value;
@@ -744,15 +694,15 @@ document.addEventListener("DOMContentLoaded", () => {
       method: "POST",
       headers: {
         Accept: "application/json",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         name,
-        icon_url
-      })
+        icon_url,
+      }),
     })
-      .then(resp => resp.json())
-      .then(json => {
+      .then((resp) => resp.json())
+      .then((json) => {
         ORGANIZATIONS.push(json);
         addUserToOrg(json);
       });
@@ -764,27 +714,27 @@ document.addEventListener("DOMContentLoaded", () => {
       name: currentUser.name,
       profile_icon: currentUser.profile_icon,
       email_address: currentUser.email_address,
-      phone_number: currentUser.phone_number
+      phone_number: currentUser.phone_number,
     });
     fetch(`http://localhost:3000/organizations/${currentOrg.id}/add_user`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Accept: "application/json"
+        Accept: "application/json",
       },
       body: JSON.stringify({
-        users: currentUser
-      })
+        users: currentUser,
+      }),
     })
-      .then(resp => resp.json())
-      .then(json => {
+      .then((resp) => resp.json())
+      .then((json) => {
         currentUser.organizations.push(json);
         indexOrganizationstionPage(document.getElementById("display-panel"));
       });
   }
 
   function getMatchStats(condition) {
-    const relatedStats = currentUser.matches.filter(match => {
+    const relatedStats = currentUser.matches.filter((match) => {
       return match.status === "Complete";
     });
     console.log(relatedStats);
