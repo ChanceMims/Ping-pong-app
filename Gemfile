@@ -19,11 +19,17 @@ gem 'puma', '~> 4.3'
 # Use Active Storage variant
 # gem 'image_processing', '~> 1.2'
 
+gem "actionview", ">= 6.0.2.2"
+
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.2', require: false
 
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
+<<<<<<< HEAD
 gem 'rack-cors'
+=======
+ gem 'rack-cors'
+>>>>>>> html-conversion
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
