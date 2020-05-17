@@ -255,14 +255,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function createMatchesDisplays() {
-    // console.log(currentUser);
-
     const profileHeader = document.getElementById("profile-header");
+
     profileHeader.innerText = `${currentUser.username}'s matches:`;
 
     const pendingMatches = getMatches("Pending", "recipient");
 
-    console.log(pendingMatches);
+    const pendingMatchList = document.getElementById("pending-match-list");
 
     for (const pendingMatch of pendingMatches) {
       const challenger = USERS.find((user) => {
@@ -293,34 +292,10 @@ document.addEventListener("DOMContentLoaded", () => {
       collapsableButtonDiv.appendChild(acceptChallengeButton);
     }
 
-    function toggleCollapse(parent) {
-      const collapsableDiv = parent.firstElementChild;
-      //;
-      if (collapsableDiv.classList.contains("collapse")) {
-        collapsableDiv.classList.remove("collapse");
-      } else {
-        collapsableDiv.classList.add("collapse");
-      }
-    }
-
-    const acceptedMatchDiv = makeElement("div", [
-      { class: "col card" },
-      { id: "accepted-matches" },
-    ]);
-    acceptedMatchDiv.appendChild(
-      makeTextElement("h3", "Accepted Matches:", [{}])
-    );
-    const acceptedMatchList = makeElement("ul", [
-      { id: "accepted-matches-list" },
-    ]);
+    const acceptedMatchList = document.getElementById("accepted-match-list");
     //debugger;
-    const acceptedMatches = [];
-    currentUser.matches.filter((match) => {
-      //debugger;
-      if (match.status === "Accepted") {
-        acceptedMatches.push(match);
-      }
-    });
+    const acceptedMatches = getMatches("Accepted", "", true);
+    console.log(acceptedMatches);
     for (const acceptedMatch of acceptedMatches) {
       const challenger = USERS.find((user) => {
         return user.id == acceptedMatch.challenger;
@@ -332,26 +307,32 @@ document.addEventListener("DOMContentLoaded", () => {
       const acceptedMatchElement = makeTextElement(
         "li",
         `Challenger ${challenger.username} vs. ${recipient.username}`,
-        [{ class: "red bold" }, { id: acceptedMatch.id }]
+        [{ class: "red bold" }, { id: `match-${acceptedMatch.id}` }]
       );
       acceptedMatchElement.addEventListener("click", (e) =>
         reportScore(acceptedMatch)
       );
       acceptedMatchList.appendChild(acceptedMatchElement);
     }
-    acceptedMatchDiv.appendChild(acceptedMatchList);
+  }
 
-    parentRow.appendChild(acceptedMatchDiv);
+  function toggleCollapse(parent) {
+    const collapsableDiv = parent.firstElementChild;
+    //;
+    if (collapsableDiv.classList.contains("collapse")) {
+      collapsableDiv.classList.remove("collapse");
+    } else {
+      collapsableDiv.classList.add("collapse");
+    }
   }
 
   function reportScore(match) {
-    //debugger;
-    //const displayPanel = document.getElementById('display-panel');
     const scoreFormDiv = document.getElementById("report-score");
-
-    // debugger;
     scoreFormDiv.innerHTML = "";
-    scoreFormDiv.classList.remove("collapse");
+    scoreFormDiv.classList.remove("invisible");
+    // debugger;
+
+    // scoreFormDiv.classList.remove("collapse");
     const scoreForm = makeElement("form", [{}]);
     scoreFormDiv.appendChild(scoreForm);
     const formContainer = makeElement("div", [
@@ -393,6 +374,8 @@ document.addEventListener("DOMContentLoaded", () => {
     ]);
     scoreForm.addEventListener("submit", (e) => {
       submitWinner(e.target, match.id);
+      scoreFormDiv.classList.add("invisible");
+      alert("Score sumbitted!");
     });
     buttonDiv.appendChild(submitScoreButton);
   }
@@ -415,21 +398,23 @@ document.addEventListener("DOMContentLoaded", () => {
     })
       .then((resp) => resp.json())
       .then((json) => {
-        const reportScore = document.getElementById("report-score");
-        reportScore.classList.add("collapse");
-        const acceptedMatchesList = document.getElementById(
-          "accepted-matches-list"
+        const acceptedMatchList = document.getElementById(
+          "accepted-match-list"
         );
-        acceptedMatchesList.removeChild(document.getElementById(json.id));
-        //debugger;
+        acceptedMatchList.removeChild(
+          document.getElementById(`match-${match_id}`)
+        );
       });
   }
 
-  function getMatches(matchType, matchingId) {
+  function getMatches(matchType, matchingId, getAll = false) {
     const userMatches = [];
     currentUser.matches.filter((match) => {
       // debugger;
-      if (match.status === matchType && currentUser.id === match[matchingId]) {
+      if (
+        match.status === matchType &&
+        (currentUser.id === match[matchingId] || getAll)
+      ) {
         userMatches.push(match);
       }
     });
