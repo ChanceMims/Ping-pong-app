@@ -136,7 +136,24 @@ document.addEventListener("DOMContentLoaded", () => {
     !!currentUser ? myOrgs() : orgPageNoUser();
   }
 
-  function myOrgs() {}
+  function myOrgs() {
+    console.log(ORGANIZATIONS);
+    const orgsPanel = document.getElementById("organizations-panel");
+    orgsPanel.innerHTML = "";
+    const orgList = makeElement("ul", [{}]);
+    for (const org of ORGANIZATIONS) {
+      org.users.map((user) => {
+        if (user.id === currentUser.id) {
+          console.log("match");
+          const myOrgs = makeTextElement("li", org.name, [
+            { id: `last-org-${org.id}` },
+          ]);
+          orgList.appendChild(myOrgs);
+        }
+      });
+    }
+    orgsPanel.appendChild(orgList);
+  }
 
   function orgPageNoUser() {
     const lastOrgs = ORGANIZATIONS.slice(-5);
@@ -238,12 +255,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function createMatchesDisplays() {
-    console.log(currentUser);
+    // console.log(currentUser);
 
     const profileHeader = document.getElementById("profile-header");
     profileHeader.innerText = `${currentUser.username}'s matches:`;
 
     const pendingMatches = getMatches("Pending", "recipient");
+
+    console.log(pendingMatches);
 
     for (const pendingMatch of pendingMatches) {
       const challenger = USERS.find((user) => {
@@ -409,7 +428,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function getMatches(matchType, matchingId) {
     const userMatches = [];
     currentUser.matches.filter((match) => {
-      //debugger;
+      // debugger;
       if (match.status === matchType && currentUser.id === match[matchingId]) {
         userMatches.push(match);
       }
