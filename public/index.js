@@ -75,8 +75,11 @@ document.addEventListener("DOMContentLoaded", () => {
   function setStats() {
     const statsTab = document.getElementById("stats-tab");
     statsTab.addEventListener("click", (e) => {
-      setActive(e.target.id);
-      console.log("stats");
+      if (currentUser) {
+        setActive(e.target.id);
+      } else {
+        alert("Please sign in to see your stats!");
+      }
     });
   }
 
@@ -105,10 +108,19 @@ document.addEventListener("DOMContentLoaded", () => {
       switch (clickedTab) {
         case "home-tab":
           showHome();
+          break;
         case "profile-tab":
           showProfile();
+          break;
         case "organizations-tab":
           showOrganizations();
+          break;
+        case "stats-tab":
+          showStats();
+          break;
+        default:
+          alert("not a valid option");
+          break;
       }
     }
   }
@@ -134,6 +146,53 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function showOrganizations() {
     !!currentUser ? myOrgs() : orgPageNoUser();
+  }
+
+  function showStats() {
+    const statsPanel = document.getElementById("stats-panel");
+    const completeMatches = getMatchStats("complete");
+    const wins = [];
+    const winRatio = [];
+    const matches = [];
+    let matchCounter = 0;
+    let winCounter = 0;
+    for (match of completeMatches) {
+      if (match.winner_id === currentUser.id) {
+        winCounter++;
+      }
+      matchCounter++;
+      wins.push(winCounter);
+      matches.push(matchCounter);
+      winRatio.push(winCounter / matchCounter);
+    }
+    const statsChart = document.getElementById("stats-chart");
+    const chart = new Chart(statsChart, {
+      type: "line",
+      data: {
+        labels: matches,
+        datasets: [
+          {
+            label: "Win Chart",
+            backgroundColor: "rgb(255, 99, 132)",
+            borderColor: "rgb(255, 99, 132)",
+            data: wins,
+          },
+          // {
+          //   label: "Win/Loss Ratio",
+          //   data: winRatio,
+          // },
+        ],
+      },
+      options: {
+        // scales: {
+        //   yAxes: [
+        //     {
+        //       stacked: true,
+        //     },
+        //   ],
+        // },
+      },
+    });
   }
 
   function myOrgs() {
@@ -262,6 +321,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const pendingMatches = getMatches("Pending", "recipient");
 
     const pendingMatchList = document.getElementById("pending-match-list");
+    pendingMatchList.innerHTML = "";
 
     for (const pendingMatch of pendingMatches) {
       const challenger = USERS.find((user) => {
@@ -293,9 +353,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const acceptedMatchList = document.getElementById("accepted-match-list");
+    acceptedMatchList.innerHTML = "";
     //debugger;
     const acceptedMatches = getMatches("Accepted", "", true);
-    console.log(acceptedMatches);
+    // console.log(acceptedMatches);
     for (const acceptedMatch of acceptedMatches) {
       const challenger = USERS.find((user) => {
         return user.id == acceptedMatch.challenger;
@@ -435,20 +496,16 @@ document.addEventListener("DOMContentLoaded", () => {
       .then((resp) => resp.json())
       .then((json) => {
         //currentOrg = json;
-        const pendingMatchesList = document.querySelector(
-          "#pending-matches ul"
+        const pendingMatchList = document.getElementById("pending-match-list");
+        const acceptedMatchList = document.getElementById(
+          "accepted-match-list"
         );
-        const acceptedMatchList = document.querySelector(
-          "#accepted-matches ul"
-        );
-        pendingMatchesList.removeChild(document.getElementById(match.id));
+        pendingMatchList.removeChild(document.getElementById(match.id));
         acceptedMatchList.appendChild(document.getElementById(match.id));
-        console.log(json);
       });
   }
 
   function indexOrganizationstionPage(parent) {
-    //console.log(currentUser.organizations);
     parent.innerHTML = "";
     const searchRow = makeElement("div", [{ class: "row" }]);
     searchForm = makeElement("form", [
@@ -741,7 +798,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const relatedStats = currentUser.matches.filter((match) => {
       return match.status === "Complete";
     });
-    console.log(relatedStats);
+    return relatedStats;
   }
 
   function makeTextElement(attr, text, options) {
